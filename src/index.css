@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color-scheme: dark;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+}
+
+.noc-grid-bg {
+  background-color: #0B0E14;
+  background-image:
+    linear-gradient(to right, rgba(38, 48, 66, 0.28) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(38, 48, 66, 0.28) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.noc-panel {
+  background-color: #131822;
+  border: 1px solid #263042;
+}
+
+@keyframes packet-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.22);
+    opacity: 0.85;
+  }
+}
+
+.animate-packet {
+  animation: packet-pulse 0.7s ease-in-out infinite;
+}

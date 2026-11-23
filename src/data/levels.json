@@ -1,0 +1,409 @@
+[
+  {
+    "id": "level-1",
+    "code": "01_HANDSHAKE",
+    "name": "Initial Handshake",
+    "description": "Establish a basic TCP/HTTP route from the Origin Server to the Client Gateway. Click pipe tiles to rotate 90° clockwise.",
+    "rows": 5,
+    "cols": 5,
+    "maxMoves": 14,
+    "timeLimit": 90,
+    "packets": [
+      {
+        "id": "PKT_01",
+        "label": "SYN_ACK",
+        "protocol": "TCP/HTTP",
+        "type": "STANDARD",
+        "sourceCoord": { "row": 2, "col": 0 },
+        "destCoord": { "row": 2, "col": 4 },
+        "encrypted": false
+      }
+    ],
+    "tiles": [
+      { "row": 0, "col": 0, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 0, "col": 1, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 0, "col": 2, "pipeType": "ELBOW", "rotation": 180, "nodeType": "NONE" },
+      { "row": 0, "col": 3, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 1, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 1, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 2, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 3, "pipeType": "ELBOW", "rotation": 270, "nodeType": "NONE" },
+      { "row": 1, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 2, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_01" },
+      { "row": 2, "col": 1, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 2, "pipeType": "ELBOW", "rotation": 270, "nodeType": "NONE" },
+      { "row": 2, "col": 3, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 4, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "DESTINATION", "locked": true, "label": "DST_01" },
+
+      { "row": 3, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 2, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 3, "col": 3, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 3, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 4, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 1, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 4, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 3, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" }
+    ]
+  },
+  {
+    "id": "level-2",
+    "code": "02_MALWARE_BYPASS",
+    "name": "Malware Bypass",
+    "description": "Two compromised honeypot nodes are active in the core sector. Route around them without allowing any branch to connect.",
+    "rows": 5,
+    "cols": 5,
+    "maxMoves": 22,
+    "timeLimit": 120,
+    "packets": [
+      {
+        "id": "PKT_01",
+        "label": "CORE_DATA",
+        "protocol": "TCP/80",
+        "type": "STANDARD",
+        "sourceCoord": { "row": 0, "col": 0 },
+        "destCoord": { "row": 4, "col": 4 },
+        "encrypted": false
+      }
+    ],
+    "tiles": [
+      { "row": 0, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_01" },
+      { "row": 0, "col": 1, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 2, "pipeType": "TEE", "rotation": 180, "nodeType": "NONE" },
+      { "row": 0, "col": 3, "pipeType": "ELBOW", "rotation": 270, "nodeType": "NONE" },
+      { "row": 0, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 1, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 1, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 1, "col": 2, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "HONEYPOT" },
+      { "row": 1, "col": 3, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 1, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 2, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 1, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 2, "col": 2, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "WORM_C2" },
+      { "row": 2, "col": 3, "pipeType": "TEE", "rotation": 90, "nodeType": "NONE" },
+      { "row": 2, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 3, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 1, "pipeType": "ELBOW", "rotation": 180, "nodeType": "NONE" },
+      { "row": 3, "col": 2, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 3, "pipeType": "ELBOW", "rotation": 270, "nodeType": "NONE" },
+      { "row": 3, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 4, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 3, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 4, "col": 4, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "DESTINATION", "locked": true, "label": "DST_01" }
+    ]
+  },
+  {
+    "id": "level-3",
+    "code": "03_TLS_DECRYPTION",
+    "name": "TLS Decryption",
+    "description": "Incoming payload is TLS-encrypted. Route through the SSL Offloader (DECRYPTOR) before reaching the destination gateway.",
+    "rows": 6,
+    "cols": 6,
+    "maxMoves": 26,
+    "timeLimit": 135,
+    "packets": [
+      {
+        "id": "PKT_01",
+        "label": "AUTH_TLS",
+        "protocol": "HTTPS/443",
+        "type": "ENCRYPTED",
+        "sourceCoord": { "row": 1, "col": 0 },
+        "destCoord": { "row": 1, "col": 5 },
+        "encrypted": true
+      }
+    ],
+    "tiles": [
+      { "row": 0, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 3, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 1, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_TLS" },
+      { "row": 1, "col": 1, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 1, "col": 2, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 1, "col": 3, "pipeType": "ELBOW", "rotation": 270, "nodeType": "NONE" },
+      { "row": 1, "col": 4, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 5, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "DESTINATION", "locked": true, "label": "GW_01" },
+
+      { "row": 2, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 1, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 2, "col": 2, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "MAL_01" },
+      { "row": 2, "col": 3, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 2, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 3, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 1, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 3, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 3, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 3, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 4, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 1, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 4, "col": 2, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "DECRYPTOR", "locked": true, "label": "SSL_OFF" },
+      { "row": 4, "col": 3, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 5, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 3, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" }
+    ]
+  },
+  {
+    "id": "level-4",
+    "code": "04_FIREWALL_RULES",
+    "name": "Deep Packet Inspection",
+    "description": "The core Firewall drops any encrypted traffic. Decrypt at the SSL Offloader first, then pass through the Firewall.",
+    "rows": 6,
+    "cols": 6,
+    "maxMoves": 32,
+    "timeLimit": 150,
+    "packets": [
+      {
+        "id": "PKT_01",
+        "label": "SSH_TUNNEL",
+        "protocol": "SSH/22",
+        "type": "ENCRYPTED",
+        "sourceCoord": { "row": 0, "col": 0 },
+        "destCoord": { "row": 5, "col": 5 },
+        "encrypted": true
+      }
+    ],
+    "tiles": [
+      { "row": 0, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_SSH" },
+      { "row": 0, "col": 1, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 3, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 1, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 1, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 1, "col": 2, "pipeType": "ELBOW", "rotation": 180, "nodeType": "NONE" },
+      { "row": 1, "col": 3, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 4, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "BOT_C2" },
+      { "row": 1, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 2, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 1, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 2, "col": 2, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 2, "col": 3, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "FIREWALL", "locked": true, "firewallRule": "DECRYPTED_ONLY", "label": "FW_DPI" },
+      { "row": 2, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 3, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 1, "pipeType": "ELBOW", "rotation": 0, "nodeType": "DECRYPTOR", "locked": true, "label": "SSL_OFF" },
+      { "row": 3, "col": 2, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 3, "col": 3, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 3, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 4, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 3, "pipeType": "ELBOW", "rotation": 180, "nodeType": "NONE" },
+      { "row": 4, "col": 4, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 5, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 3, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 4, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 5, "col": 5, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "DESTINATION", "locked": true, "label": "DST_01" }
+    ]
+  },
+  {
+    "id": "level-5",
+    "code": "05_CROSS_TRAFFIC",
+    "name": "Cross Traffic",
+    "description": "Route two simultaneous streams across an isolated BRIDGE overpass without cross-contamination or malware hits.",
+    "rows": 7,
+    "cols": 7,
+    "maxMoves": 26,
+    "timeLimit": 160,
+    "packets": [
+      {
+        "id": "PKT_01",
+        "label": "VLAN_10",
+        "protocol": "TCP/8080",
+        "type": "STANDARD",
+        "sourceCoord": { "row": 3, "col": 0 },
+        "destCoord": { "row": 3, "col": 6 },
+        "encrypted": false
+      },
+      {
+        "id": "PKT_02",
+        "label": "VLAN_20",
+        "protocol": "TLS/8443",
+        "type": "ENCRYPTED",
+        "sourceCoord": { "row": 0, "col": 3 },
+        "destCoord": { "row": 6, "col": 3 },
+        "encrypted": true
+      }
+    ],
+    "tiles": [
+      { "row": 0, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 3, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "SOURCE", "locked": true, "label": "SRC_20" },
+      { "row": 0, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 6, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 1, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 3, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 1, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 6, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 2, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 1, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "MAL_A" },
+      { "row": 2, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 3, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "DECRYPTOR", "locked": true, "label": "SSL_20" },
+      { "row": 2, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 6, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 3, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_10" },
+      { "row": 3, "col": 1, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 2, "pipeType": "ELBOW", "rotation": 180, "nodeType": "NONE" },
+      { "row": 3, "col": 3, "pipeType": "BRIDGE", "rotation": 0, "nodeType": "NONE", "locked": true, "label": "BRG_01" },
+      { "row": 3, "col": 4, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 5, "pipeType": "TEE", "rotation": 90, "nodeType": "NONE" },
+      { "row": 3, "col": 6, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "DESTINATION", "locked": true, "label": "DST_10" },
+
+      { "row": 4, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 1, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 4, "col": 2, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 3, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 4, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 5, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "MAL_B" },
+      { "row": 4, "col": 6, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 5, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 3, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "FIREWALL", "locked": true, "firewallRule": "DECRYPTED_ONLY", "label": "FW_20" },
+      { "row": 5, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 6, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 6, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 6, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 6, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 6, "col": 3, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "DESTINATION", "locked": true, "label": "DST_20" },
+      { "row": 6, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 6, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 6, "col": 6, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" }
+    ]
+  },
+  {
+    "id": "level-6",
+    "code": "06_ZERO_DAY_MITIGATION",
+    "name": "Zero-Day Mitigation",
+    "description": "Final protocol test: route a low-TTL PRIORITY packet (max 8 hops) alongside an ENCRYPTED stream through Decryptor & Firewall.",
+    "rows": 7,
+    "cols": 7,
+    "maxMoves": 32,
+    "timeLimit": 180,
+    "packets": [
+      {
+        "id": "PKT_01",
+        "label": "ICMP_PING",
+        "protocol": "UDP/ICMP",
+        "type": "PRIORITY",
+        "sourceCoord": { "row": 0, "col": 0 },
+        "destCoord": { "row": 4, "col": 4 },
+        "encrypted": false,
+        "maxHops": 8
+      },
+      {
+        "id": "PKT_02",
+        "label": "KEY_EXCH",
+        "protocol": "SSH/22",
+        "type": "ENCRYPTED",
+        "sourceCoord": { "row": 6, "col": 0 },
+        "destCoord": { "row": 0, "col": 6 },
+        "encrypted": true
+      }
+    ],
+    "tiles": [
+      { "row": 0, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_01" },
+      { "row": 0, "col": 1, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 2, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 3, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 4, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 6, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "DESTINATION", "locked": true, "label": "DST_02" },
+
+      { "row": 1, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 1, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "0DAY_1" },
+      { "row": 1, "col": 2, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 3, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 4, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 1, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 6, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+
+      { "row": 2, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 2, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 3, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 4, "pipeType": "BRIDGE", "rotation": 0, "nodeType": "NONE", "locked": true, "label": "BRG_X" },
+      { "row": 2, "col": 5, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "FIREWALL", "locked": true, "firewallRule": "DECRYPTED_ONLY", "label": "FW_02" },
+      { "row": 2, "col": 6, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+
+      { "row": 3, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 2, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 3, "col": 3, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 4, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 3, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 6, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 4, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 2, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 4, "col": 3, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 4, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "DESTINATION", "locked": true, "label": "DST_01" },
+      { "row": 4, "col": 5, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "0DAY_2" },
+      { "row": 4, "col": 6, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 5, "col": 0, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 1, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 2, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 5, "col": 3, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 6, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+
+      { "row": 6, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_02" },
+      { "row": 6, "col": 1, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 6, "col": 2, "pipeType": "ELBOW", "rotation": 270, "nodeType": "DECRYPTOR", "locked": true, "label": "SSL_02" },
+      { "row": 6, "col": 3, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 6, "col": 4, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 6, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 6, "col": 6, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" }
+    ]
+  }
+]
