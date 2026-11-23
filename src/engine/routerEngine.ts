@@ -240,6 +240,7 @@ export function simulatePacket(
 
   const visited = new Set<string>();
   let malwareHitResult: PacketSimulationResult | null = null;
+  let bestSuccessResult: PacketSimulationResult | null = null;
   let firewallFailResult: PacketSimulationResult | null = null;
   let encryptedDestResult: PacketSimulationResult | null = null;
   let ttlFailResult: PacketSimulationResult | null = null;
@@ -283,14 +284,14 @@ export function simulatePacket(
           encrypted: nextEncrypted,
           hopCount: nextHops,
           event: 'MALWARE_HIT',
-          logMessage: `${packet.id} -> Hop ${coordKey(nextTile)} [ERR_MALWARE_INTERCEPTED] Payload compromised!`,
+          logMessage: `${packet.id} -> Hop ${coordKey(nextTile)} [ERR_MALWARE_TRAP_TRIGGERED] Signal leaked to honeypot!`,
           severity: 'error',
         };
         if (!malwareHitResult) {
           malwareHitResult = {
             packetId: packet.id,
             success: false,
-            errorCode: 'ERR_MALWARE_INTERCEPTED',
+            errorCode: 'ERR_MALWARE_TRAP_TRIGGERED',
             failCoord: { row: nextTile.row, col: nextTile.col },
             steps: [...updatedSteps, failStep],
             totalHops: nextHops,
@@ -423,17 +424,16 @@ export function simulatePacket(
           severity: 'success',
         };
 
-        // Even if a valid path is found, keep checking if malware is connected?
-        // If malwareHitResult already occurred, it would have been caught if closer,
-        // but let's also do a quick check: if malware is reachable at all, we fail!
-        if (!malwareHitResult) {
-          return {
+        // Record valid delivery, but continue BFS to ensure no TEE/CROSS branch hits MALWARE
+        if (!bestSuccessResult) {
+          bestSuccessResult = {
             packetId: packet.id,
             success: true,
             steps: [...updatedSteps, successStep],
             totalHops: nextHops,
           };
         }
+        continue;
       }
 
       const nextStep: SimulationStep = {
@@ -460,6 +460,7 @@ export function simulatePacket(
   }
 
   if (malwareHitResult) return malwareHitResult;
+  if (bestSuccessResult) return bestSuccessResult;
   if (firewallFailResult) return firewallFailResult;
   if (encryptedDestResult) return encryptedDestResult;
   if (ttlFailResult) return ttlFailResult;

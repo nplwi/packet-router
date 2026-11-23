@@ -405,5 +405,225 @@
       { "row": 6, "col": 5, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" },
       { "row": 6, "col": 6, "pipeType": "NONE", "rotation": 0, "nodeType": "NONE" }
     ]
+  },
+  {
+    "id": "level-7",
+    "code": "07_DOUBLE_ENCAPSULATION",
+    "name": "Double Encapsulation",
+    "description": "Route two ENCRYPTED streams from separate origins through a single central DECRYPTOR surrounded by three MALWARE honeypots.",
+    "rows": 7,
+    "cols": 7,
+    "maxMoves": 14,
+    "timeLimit": 120,
+    "packets": [
+      {
+        "id": "PKT_01",
+        "label": "TLS_NORTH",
+        "protocol": "HTTPS/443",
+        "type": "ENCRYPTED",
+        "sourceCoord": { "row": 0, "col": 3 },
+        "destCoord": { "row": 6, "col": 3 },
+        "encrypted": true
+      },
+      {
+        "id": "PKT_02",
+        "label": "SSH_WEST",
+        "protocol": "SSH/22",
+        "type": "ENCRYPTED",
+        "sourceCoord": { "row": 3, "col": 0 },
+        "destCoord": { "row": 6, "col": 3 },
+        "encrypted": true
+      }
+    ],
+    "tiles": [
+      { "row": 0, "col": 3, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_A" },
+      { "row": 0, "col": 4, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 1, "col": 3, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 1, "col": 4, "pipeType": "ELBOW", "rotation": 180, "nodeType": "NONE" },
+      { "row": 2, "col": 2, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "MAL_01" },
+      { "row": 2, "col": 3, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 2, "col": 4, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "MAL_02" },
+      { "row": 3, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_B" },
+      { "row": 3, "col": 1, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 2, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 3, "pipeType": "CROSS", "rotation": 0, "nodeType": "DECRYPTOR", "locked": true, "label": "SSL_HUB" },
+      { "row": 4, "col": 2, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "MAL_03" },
+      { "row": 4, "col": 3, "pipeType": "BRIDGE", "rotation": 0, "nodeType": "NONE", "locked": true, "label": "BRG_01" },
+      { "row": 5, "col": 3, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 6, "col": 3, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "DESTINATION", "locked": true, "label": "DST_01" }
+    ]
+  },
+  {
+    "id": "level-8",
+    "code": "08_STRICT_HOP_BUDGET",
+    "name": "Strict Hop Budget",
+    "description": "PRIORITY traffic (max 7 hops) must take the direct vertical trunk while ENCRYPTED traffic detours via DECRYPTOR and FIREWALL.",
+    "rows": 7,
+    "cols": 7,
+    "maxMoves": 15,
+    "timeLimit": 135,
+    "packets": [
+      {
+        "id": "PKT_01",
+        "label": "VOIP_PRI",
+        "protocol": "UDP/5060",
+        "type": "PRIORITY",
+        "sourceCoord": { "row": 0, "col": 1 },
+        "destCoord": { "row": 6, "col": 2 },
+        "encrypted": false,
+        "maxHops": 7
+      },
+      {
+        "id": "PKT_02",
+        "label": "TLS_BULK",
+        "protocol": "HTTPS/443",
+        "type": "ENCRYPTED",
+        "sourceCoord": { "row": 3, "col": 0 },
+        "destCoord": { "row": 6, "col": 2 },
+        "encrypted": true
+      }
+    ],
+    "tiles": [
+      { "row": 0, "col": 1, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "SOURCE", "locked": true, "label": "SRC_PRI" },
+      { "row": 1, "col": 1, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 1, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 2, "col": 2, "pipeType": "ELBOW", "rotation": 90, "nodeType": "DECRYPTOR", "locked": true, "label": "SSL_01" },
+      { "row": 2, "col": 3, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 4, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "FIREWALL", "locked": true, "firewallRule": "DECRYPTED_ONLY", "label": "FW_01" },
+      { "row": 2, "col": 5, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_ENC" },
+      { "row": 3, "col": 1, "pipeType": "BRIDGE", "rotation": 0, "nodeType": "NONE", "locked": true, "label": "BRG_01" },
+      { "row": 3, "col": 2, "pipeType": "ELBOW", "rotation": 180, "nodeType": "NONE" },
+      { "row": 3, "col": 3, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "MAL_01" },
+      { "row": 3, "col": 5, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 4, "col": 1, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 4, "col": 5, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE", "locked": true },
+      { "row": 5, "col": 1, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 5, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 6, "col": 1, "pipeType": "ELBOW", "rotation": 270, "nodeType": "NONE" },
+      { "row": 6, "col": 2, "pipeType": "TEE", "rotation": 0, "nodeType": "DESTINATION", "locked": true, "label": "DST_01" },
+      { "row": 6, "col": 3, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE", "locked": true },
+      { "row": 6, "col": 4, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 6, "col": 5, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" }
+    ]
+  },
+  {
+    "id": "level-9",
+    "code": "09_HONEYPOT_LABYRINTH",
+    "name": "Honeypot Labyrinth",
+    "description": "Navigate an 8x8 honeypot grid. Rotate TEE junctions away from MALWARE—any leaked branch triggers ERR_MALWARE_TRAP_TRIGGERED.",
+    "rows": 8,
+    "cols": 8,
+    "maxMoves": 18,
+    "timeLimit": 150,
+    "packets": [
+      {
+        "id": "PKT_01",
+        "label": "SEC_CORE",
+        "protocol": "TLS/8443",
+        "type": "ENCRYPTED",
+        "sourceCoord": { "row": 0, "col": 0 },
+        "destCoord": { "row": 7, "col": 7 },
+        "encrypted": true
+      }
+    ],
+    "tiles": [
+      { "row": 0, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_01" },
+      { "row": 0, "col": 1, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 0, "col": 2, "pipeType": "TEE", "rotation": 180, "nodeType": "NONE" },
+      { "row": 0, "col": 3, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "HONEY_1" },
+      { "row": 1, "col": 2, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 1, "col": 4, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "HONEY_2" },
+      { "row": 2, "col": 1, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "HONEY_3" },
+      { "row": 2, "col": 2, "pipeType": "TEE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 3, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 2, "pipeType": "ELBOW", "rotation": 0, "nodeType": "DECRYPTOR", "locked": true, "label": "SSL_01" },
+      { "row": 3, "col": 3, "pipeType": "TEE", "rotation": 270, "nodeType": "NONE" },
+      { "row": 3, "col": 4, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 3, "col": 5, "pipeType": "ELBOW", "rotation": 180, "nodeType": "FIREWALL", "locked": true, "firewallRule": "DECRYPTED_ONLY", "label": "FW_01" },
+      { "row": 4, "col": 3, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "HONEY_4" },
+      { "row": 4, "col": 5, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 5, "col": 4, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "HONEY_5" },
+      { "row": 5, "col": 5, "pipeType": "TEE", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 6, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 6, "col": 5, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "FIREWALL", "locked": true, "firewallRule": "DECRYPTED_ONLY", "label": "FW_02" },
+      { "row": 6, "col": 6, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "HONEY_6" },
+      { "row": 7, "col": 5, "pipeType": "ELBOW", "rotation": 270, "nodeType": "NONE" },
+      { "row": 7, "col": 6, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 7, "col": 7, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "DESTINATION", "locked": true, "label": "DST_01" }
+    ]
+  },
+  {
+    "id": "level-10",
+    "code": "10_CORE_BACKBONE_FAILOVER",
+    "name": "Core Backbone Failover",
+    "description": "Enterprise final: route 3 simultaneous streams (STANDARD, ENCRYPTED, PRIORITY <= 9 hops) to DEST_ALPHA and DEST_BETA.",
+    "rows": 8,
+    "cols": 8,
+    "maxMoves": 20,
+    "timeLimit": 180,
+    "packets": [
+      {
+        "id": "PKT_01",
+        "label": "BGP_CTRL",
+        "protocol": "TCP/179",
+        "type": "STANDARD",
+        "sourceCoord": { "row": 0, "col": 0 },
+        "destCoord": { "row": 4, "col": 7 },
+        "encrypted": false
+      },
+      {
+        "id": "PKT_02",
+        "label": "IPSEC_GW",
+        "protocol": "SSH/22",
+        "type": "ENCRYPTED",
+        "sourceCoord": { "row": 7, "col": 0 },
+        "destCoord": { "row": 4, "col": 7 },
+        "encrypted": true
+      },
+      {
+        "id": "PKT_03",
+        "label": "ICMP_HB",
+        "protocol": "UDP/ICMP",
+        "type": "PRIORITY",
+        "sourceCoord": { "row": 0, "col": 4 },
+        "destCoord": { "row": 7, "col": 4 },
+        "encrypted": false,
+        "maxHops": 9
+      }
+    ],
+    "tiles": [
+      { "row": 0, "col": 0, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "SOURCE", "locked": true, "label": "SRC_01" },
+      { "row": 0, "col": 4, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "SOURCE", "locked": true, "label": "SRC_03" },
+      { "row": 1, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 1, "col": 1, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "MAL_01" },
+      { "row": 1, "col": 4, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 2, "col": 0, "pipeType": "ELBOW", "rotation": 180, "nodeType": "NONE" },
+      { "row": 2, "col": 1, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 2, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE", "locked": true },
+      { "row": 2, "col": 3, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 4, "pipeType": "BRIDGE", "rotation": 0, "nodeType": "NONE", "locked": true, "label": "BRG_A" },
+      { "row": 2, "col": 5, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 2, "col": 6, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE", "locked": true },
+      { "row": 2, "col": 7, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 3, "col": 4, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 3, "col": 5, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "MAL_02" },
+      { "row": 3, "col": 7, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 4, "col": 4, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE", "locked": true },
+      { "row": 4, "col": 5, "pipeType": "ELBOW", "rotation": 90, "nodeType": "FIREWALL", "locked": true, "firewallRule": "DECRYPTED_ONLY", "label": "FW_01" },
+      { "row": 4, "col": 6, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 4, "col": 7, "pipeType": "TEE", "rotation": 270, "nodeType": "DESTINATION", "locked": true, "label": "DEST_A" },
+      { "row": 5, "col": 1, "pipeType": "ELBOW", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 2, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "NONE" },
+      { "row": 5, "col": 3, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "DECRYPTOR", "locked": true, "label": "SSL_01" },
+      { "row": 5, "col": 4, "pipeType": "BRIDGE", "rotation": 0, "nodeType": "NONE", "locked": true, "label": "BRG_B" },
+      { "row": 5, "col": 5, "pipeType": "ELBOW", "rotation": 180, "nodeType": "NONE" },
+      { "row": 6, "col": 1, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 6, "col": 2, "pipeType": "CROSS", "rotation": 0, "nodeType": "MALWARE", "locked": true, "label": "MAL_03" },
+      { "row": 6, "col": 4, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "NONE" },
+      { "row": 7, "col": 0, "pipeType": "STRAIGHT", "rotation": 90, "nodeType": "SOURCE", "locked": true, "label": "SRC_02" },
+      { "row": 7, "col": 1, "pipeType": "ELBOW", "rotation": 90, "nodeType": "NONE" },
+      { "row": 7, "col": 4, "pipeType": "STRAIGHT", "rotation": 0, "nodeType": "DESTINATION", "locked": true, "label": "DEST_B" }
+    ]
   }
 ]

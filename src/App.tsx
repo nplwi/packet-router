@@ -1,17 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Play,
-  RotateCcw,
-  Pause,
-  BookOpen,
-  Network,
-  Clock,
-  Sliders,
-  FastForward,
-  ArrowRight,
-  Star,
-  AlertTriangle,
-} from 'lucide-react';
+import { Star, ArrowRight } from 'lucide-react';
 import levelsData from './data/levels.json';
 import type {
   Coord,
@@ -56,7 +44,7 @@ export function App() {
     buildGrid(currentLevel.rows, currentLevel.cols, currentLevel.tiles)
   );
   const [movesLeft, setMovesLeft] = useState(currentLevel.maxMoves);
-  const [timeLeft, setTimeLeft] = useState(currentLevel.timeLimit);
+  const [timeTenths, setTimeTenths] = useState(currentLevel.timeLimit * 10);
   const [isPaused, setIsPaused] = useState(false);
 
   const [isSimulating, setIsSimulating] = useState(false);
@@ -83,7 +71,7 @@ export function App() {
     clearSimTimer();
     setGrid(buildGrid(level.rows, level.cols, level.tiles));
     setMovesLeft(level.maxMoves);
-    setTimeLeft(level.timeLimit);
+    setTimeTenths(level.timeLimit * 10);
     setIsPaused(false);
     setIsSimulating(false);
     setActiveSteps({});
@@ -98,13 +86,13 @@ export function App() {
     resetLevelState(LEVELS[idx]);
   };
 
-  // Countdown timer during planning phase
+  // 100ms precision countdown timer during planning phase
   useEffect(() => {
-    if (isPaused || isSimulating || missionOutcome === 'SUCCESS' || timeLeft <= 0) {
+    if (isPaused || isSimulating || missionOutcome === 'SUCCESS' || timeTenths <= 0) {
       return;
     }
     const id = window.setInterval(() => {
-      setTimeLeft((prev) => {
+      setTimeTenths((prev) => {
         if (prev <= 1) {
           setMissionOutcome('FAILED');
           setLogs((old) => [
@@ -113,7 +101,7 @@ export function App() {
               id: `timeout-${Date.now()}`,
               timestamp: '00:00',
               packetId: 'SYS',
-              message: 'ERR_LINK_TIMEOUT // Countdown expired. Reset board to retry.',
+              message: 'ERR_LINK_TIMEOUT // Countdown expired. Reset board.',
               severity: 'error',
             },
           ]);
@@ -121,9 +109,9 @@ export function App() {
         }
         return prev - 1;
       });
-    }, 1000);
+    }, 100);
     return () => window.clearInterval(id);
-  }, [isPaused, isSimulating, missionOutcome, timeLeft]);
+  }, [isPaused, isSimulating, missionOutcome, timeTenths]);
 
   useEffect(() => {
     return () => clearSimTimer();
@@ -135,7 +123,7 @@ export function App() {
   }, [grid, currentLevel.packets]);
 
   const handleRotateTile = (row: number, col: number) => {
-    if (isSimulating || missionOutcome === 'SUCCESS' || timeLeft <= 0) return;
+    if (isSimulating || missionOutcome === 'SUCCESS' || timeTenths <= 0) return;
     if (movesLeft <= 0) {
       setLogs((prev) => [
         ...prev,
@@ -143,7 +131,7 @@ export function App() {
           id: `nomoves-${Date.now()}`,
           timestamp: 'SYS',
           packetId: 'SYS',
-          message: 'WARN_MOVE_BUDGET_DEPLETED // Press SEND PACKET or RESET.',
+          message: 'MOVE_BUDGET_DEPLETED // Press [EXECUTE PING] or [RESET BOARD].',
           severity: 'warn',
         },
       ]);
@@ -169,7 +157,7 @@ export function App() {
   };
 
   const handleExecute = () => {
-    if (isSimulating || timeLeft <= 0) return;
+    if (isSimulating || timeTenths <= 0) return;
 
     clearSimTimer();
     setIsSimulating(true);
@@ -189,13 +177,13 @@ export function App() {
       id: `boot-${Date.now()}`,
       timestamp: '00:00',
       packetId: 'SYS',
-      message: `PING_EXEC // Dispatching ${currentLevel.packets.length} packet(s) @ ${simSpeed}x...`,
+      message: `PING_EXEC // Dispatching ${currentLevel.packets.length} stream(s) @ ${simSpeed}x...`,
       severity: 'info',
     };
     setLogs([bootLog]);
 
     let stepIndex = 0;
-    const stepDelay = simSpeed === 2 ? 170 : 340;
+    const stepDelay = simSpeed === 2 ? 150 : 300;
 
     const advanceStep = () => {
       if (stepIndex >= maxSteps) {
@@ -206,6 +194,7 @@ export function App() {
           setMissionOutcome('SUCCESS');
           const stars = calculateStars(movesLeft, currentLevel.maxMoves);
           const movesUsed = currentLevel.maxMoves - movesLeft;
+          const timeRemainingSec = Math.floor(timeTenths / 10);
 
           setProgress((prev) => {
             const existing = prev[currentLevel.id];
@@ -220,14 +209,14 @@ export function App() {
                   ? Math.min(existing.bestMovesUsed, movesUsed)
                   : movesUsed,
                 bestTimeRemaining: existing
-                  ? Math.max(existing.bestTimeRemaining, timeLeft)
-                  : timeLeft,
+                  ? Math.max(existing.bestTimeRemaining, timeRemainingSec)
+                  : timeRemainingSec,
               },
             };
             try {
               localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
             } catch {
-              // ignore storage quota errors
+              // ignore storage errors
             }
             return updated;
           });
@@ -267,239 +256,206 @@ export function App() {
       simTimerRef.current = window.setTimeout(advanceStep, stepDelay);
     };
 
-    simTimerRef.current = window.setTimeout(advanceStep, 120);
+    simTimerRef.current = window.setTimeout(advanceStep, 100);
   };
 
-  const formatTime = (secs: number) => {
-    const m = String(Math.floor(secs / 60)).padStart(2, '0');
-    const s = String(secs % 60).padStart(2, '0');
-    return `${m}:${s}`;
+  const formatMillisTimer = (tenths: number) => {
+    const totalSec = Math.floor(tenths / 10);
+    const m = String(Math.floor(totalSec / 60)).padStart(2, '0');
+    const s = String(totalSec % 60).padStart(2, '0');
+    const t = tenths % 10;
+    return `${m}:${s}.${t}`;
   };
 
   const movesUsed = currentLevel.maxMoves - movesLeft;
   const earnedStars = calculateStars(movesLeft, currentLevel.maxMoves);
   const hasNextLevel = currentLevelIdx < LEVELS.length - 1;
+  const nodeNumber = String(currentLevelIdx + 1).padStart(2, '0');
 
   return (
-    <div className="min-h-screen noc-grid-bg text-slate-200 flex flex-col">
-      {/* Top NOC Header */}
-      <header className="border-b border-[#263042] bg-[#0E131B]/95 px-4 py-2.5">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 rounded-sm bg-[#00E5FF]/10 border border-[#00E5FF]/40">
-              <Network className="w-5 h-5 text-[#00E5FF]" />
-            </div>
-            <div>
-              <h1 className="font-mono text-sm sm:text-base font-bold tracking-wider text-slate-100">
-                PACKET ROUTER <span className="text-[#00E5FF]">// v1.0</span>
-              </h1>
-              <p className="text-[11px] text-slate-400">
-                Tactical Network Topology &amp; Security Puzzle
-              </p>
-            </div>
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden hw-dot-bg text-slate-200 flex flex-col">
+      {/* Top Telemetry Bar (~44px) */}
+      <header className="min-h-[44px] border-b border-[#2A303C] bg-[#14171C] px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-xs font-bold tracking-wider text-slate-100">
+            PACKET_ROUTER
+          </span>
+          <span className="h-3.5 w-[1px] bg-[#2A303C]" />
+          <span className="font-mono text-[11px] font-semibold text-[#38BDF8]">
+            NODE_{nodeNumber} // {currentLevel.code.replace(/^\d+_/, '')}
+          </span>
+        </div>
+
+        {/* Segmented Telemetry & Tactile Controls */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="px-2 py-1 bg-[#0D0F12] border border-[#2A303C] rounded-[2px] font-mono text-[11px]">
+            <span className="text-slate-500 mr-1">MOVES:</span>
+            <span className={movesLeft <= 3 ? 'text-[#F59E0B] font-bold' : 'text-slate-100 font-bold'}>
+              {String(movesLeft).padStart(2, '0')}/{String(currentLevel.maxMoves).padStart(2, '0')}
+            </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="px-2 py-1 bg-[#0D0F12] border border-[#2A303C] rounded-[2px] font-mono text-[11px]">
+            <span className={timeTenths <= 200 ? 'text-[#EF4444] font-bold' : 'text-[#10B981] font-bold'}>
+              {formatMillisTimer(timeTenths)}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleExecute}
+            disabled={isSimulating || timeTenths <= 0}
+            className="px-2.5 py-1 rounded-[2px] bg-[#38BDF8] hover:bg-[#60CCF9] disabled:opacity-40 text-[#0D0F12] font-mono text-[11px] font-bold uppercase cursor-pointer"
+          >
+            {isSimulating ? '[TX_ACTIVE]' : '[EXECUTE PING]'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSimSpeed((s) => (s === 1 ? 2 : 1))}
+            disabled={isSimulating}
+            className={`px-2 py-1 rounded-[2px] border font-mono text-[11px] cursor-pointer ${
+              simSpeed === 2
+                ? 'border-[#F59E0B] text-[#F59E0B] bg-[#F59E0B]/10'
+                : 'border-[#2A303C] text-slate-300 bg-[#0D0F12] hover:border-slate-500'
+            }`}
+          >
+            {simSpeed}X
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsPaused((p) => !p)}
+            disabled={isSimulating || missionOutcome === 'SUCCESS'}
+            className="px-2 py-1 rounded-[2px] border border-[#2A303C] bg-[#0D0F12] hover:border-slate-500 font-mono text-[11px] text-slate-300 cursor-pointer disabled:opacity-40"
+          >
+            {isPaused ? '[RESUME]' : '[PAUSE]'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => resetLevelState(currentLevel)}
+            className="px-2.5 py-1 rounded-[2px] border border-[#2A303C] bg-[#0D0F12] hover:border-[#EF4444] hover:text-[#EF4444] font-mono text-[11px] text-slate-300 cursor-pointer"
+          >
+            [RESET BOARD]
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsManualOpen(true)}
+            className="px-2.5 py-1 rounded-[2px] border border-[#2A303C] bg-[#0D0F12] hover:border-[#38BDF8] hover:text-[#38BDF8] font-mono text-[11px] text-slate-300 cursor-pointer"
+          >
+            [MANUAL]
+          </button>
+        </div>
+      </header>
+
+      {/* Main Split-Pane NOC Workspace */}
+      <main className="flex-1 min-h-0 max-w-[1440px] w-full mx-auto p-2.5 sm:p-3 flex flex-col lg:flex-row gap-3">
+        {/* Left/Center Main Stage */}
+        <section className="flex-1 min-w-0 flex flex-col gap-2.5 overflow-y-auto pr-0.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <LevelSelector
               levels={LEVELS}
               currentIndex={currentLevelIdx}
               progress={progress}
               onSelectLevel={handleSelectLevel}
             />
-            <button
-              type="button"
-              onClick={() => setIsManualOpen(true)}
-              className="px-3 py-1.5 rounded-sm border border-[#263042] bg-[#131822] hover:border-[#00E5FF]/60 font-mono text-xs text-slate-200 flex items-center gap-1.5 cursor-pointer"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-[#00E5FF]" />
-              <span className="hidden sm:inline">MANUAL</span>
-            </button>
           </div>
-        </div>
-      </header>
 
-      {/* Main Workspace */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        {/* Left/Center Column: Telemetry Bar + Board + Action Controls */}
-        <div className="lg:col-span-7 flex flex-col gap-3">
-          {/* Level Brief & Telemetry */}
-          <div className="noc-panel rounded-md p-3 flex flex-col gap-2.5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <span className="font-mono text-[11px] text-[#00E5FF] uppercase">
-                  {currentLevel.code}
-                </span>
-                <h2 className="text-sm font-semibold text-slate-100">
-                  {currentLevel.name}
-                </h2>
+          <div className="hw-chassis rounded-[2px] px-3 py-2 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="font-mono text-[11px] font-bold text-slate-200 uppercase">
+                {currentLevel.name}
               </div>
-
-              {/* Telemetry Counters */}
-              <div className="flex items-center gap-2">
-                <div className="px-2.5 py-1 rounded-sm bg-[#0B0E14] border border-[#263042] flex items-center gap-1.5 font-mono text-xs">
-                  <Sliders className="w-3.5 h-3.5 text-[#00E5FF]" />
-                  <span className="text-slate-400">MOVES:</span>
-                  <span
-                    className={`font-bold ${
-                      movesLeft <= 3 ? 'text-[#FFB000]' : 'text-slate-100'
-                    }`}
-                  >
-                    {movesLeft}/{currentLevel.maxMoves}
-                  </span>
-                </div>
-
-                <div className="px-2.5 py-1 rounded-sm bg-[#0B0E14] border border-[#263042] flex items-center gap-1.5 font-mono text-xs">
-                  <Clock className="w-3.5 h-3.5 text-[#00E5FF]" />
-                  <span
-                    className={`font-bold ${
-                      timeLeft <= 20 ? 'text-[#FF3B30]' : 'text-slate-100'
-                    }`}
-                  >
-                    {formatTime(timeLeft)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <p className="text-xs text-slate-400 leading-relaxed">
-              {currentLevel.description}
-            </p>
-          </div>
-
-          {/* Interactive Patch Matrix */}
-          <BoardGrid
-            grid={grid}
-            poweredCoords={poweredCoords}
-            packets={currentLevel.packets}
-            activeSteps={activeSteps}
-            failCoord={failCoord}
-            isSimulating={isSimulating}
-            onRotateTile={handleRotateTile}
-          />
-
-          {/* Control Bar */}
-          <div className="noc-panel rounded-md p-2.5 flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleExecute}
-                disabled={isSimulating || timeLeft <= 0}
-                className="px-4 py-2 rounded-sm bg-[#00E5FF] hover:bg-[#33ECFF] disabled:opacity-40 disabled:cursor-not-allowed text-[#0B0E14] font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer transition-colors"
-              >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                {isSimulating ? 'TRANSMITTING...' : 'SEND PACKET'}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setSimSpeed((s) => (s === 1 ? 2 : 1))}
-                disabled={isSimulating}
-                className={`px-2.5 py-2 rounded-sm border font-mono text-xs flex items-center gap-1 cursor-pointer ${
-                  simSpeed === 2
-                    ? 'border-[#FFB000]/70 text-[#FFB000] bg-[#FFB000]/10'
-                    : 'border-[#263042] text-slate-300 bg-[#0B0E14] hover:border-slate-500'
-                }`}
-                title="Toggle simulation playback speed"
-              >
-                <FastForward className="w-3.5 h-3.5" />
-                {simSpeed}x
-              </button>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsPaused((p) => !p)}
-                disabled={isSimulating || missionOutcome === 'SUCCESS'}
-                className="px-3 py-2 rounded-sm border border-[#263042] bg-[#0B0E14] hover:border-slate-500 font-mono text-xs text-slate-300 flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
-              >
-                <Pause className="w-3.5 h-3.5" />
-                {isPaused ? 'RESUME' : 'PAUSE'}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => resetLevelState(currentLevel)}
-                className="px-3 py-2 rounded-sm border border-[#263042] bg-[#0B0E14] hover:border-[#FF3B30]/60 hover:text-[#FF3B30] font-mono text-xs text-slate-300 flex items-center gap-1.5 cursor-pointer"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                RESET
-              </button>
+              <p className="text-[11px] text-slate-400 truncate sm:whitespace-normal">
+                {currentLevel.description}
+              </p>
             </div>
           </div>
 
-          {/* Outcome Banner */}
+          {/* Interactive Patch Bay */}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full max-w-[540px]">
+              <BoardGrid
+                grid={grid}
+                poweredCoords={poweredCoords}
+                packets={currentLevel.packets}
+                activeSteps={activeSteps}
+                failCoord={failCoord}
+                isSimulating={isSimulating}
+                onRotateTile={handleRotateTile}
+              />
+            </div>
+          </div>
+
+          {/* Outcome Strip */}
           {missionOutcome === 'SUCCESS' && simResult && (
-            <div className="rounded-md border border-[#00E676]/60 bg-[#00E676]/10 p-3.5 flex flex-wrap items-center justify-between gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold uppercase text-[#00E676]">
-                    200_OK // ROUTE VERIFIED
-                  </span>
-                  <span className="inline-flex items-center gap-0.5">
-                    {Array.from({ length: earnedStars }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-3.5 h-3.5 fill-[#FFB000] text-[#FFB000]"
-                      />
-                    ))}
-                  </span>
-                </div>
-                <div className="font-mono text-[11px] text-slate-300 flex flex-wrap gap-3">
-                  <span>MOVES_USED: {movesUsed}</span>
-                  <span>TOTAL_HOPS: {simResult.totalHops}</span>
-                  <span>TIME_LEFT: {formatTime(timeLeft)}</span>
-                </div>
+            <div className="rounded-[2px] border border-[#10B981] bg-[#10B981]/10 px-3 py-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-3 font-mono text-[11px]">
+                <span className="font-bold text-[#10B981]">
+                  200_ACK // ROUTE_VERIFIED
+                </span>
+                <span className="inline-flex items-center gap-0.5">
+                  {Array.from({ length: earnedStars }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]"
+                    />
+                  ))}
+                </span>
+                <span className="text-slate-300">MOVES: {movesUsed}</span>
+                <span className="text-slate-300">HOPS: {simResult.totalHops}</span>
+                <span className="text-slate-300">
+                  TIME_LEFT: {formatMillisTimer(timeTenths)}
+                </span>
               </div>
 
               {hasNextLevel ? (
                 <button
                   type="button"
                   onClick={() => handleSelectLevel(currentLevelIdx + 1)}
-                  className="px-3.5 py-2 rounded-sm bg-[#00E676] hover:bg-[#33EB91] text-[#0B0E14] font-mono text-xs font-bold uppercase flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1 rounded-[2px] bg-[#10B981] hover:bg-[#34D399] text-[#0D0F12] font-mono text-[11px] font-bold uppercase flex items-center gap-1 cursor-pointer"
                 >
-                  NEXT SECTOR
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  NEXT_NODE
+                  <ArrowRight className="w-3 h-3" />
                 </button>
               ) : (
-                <span className="font-mono text-xs font-bold text-[#00E676]">
-                  ALL SECTORS SECURED
+                <span className="font-mono text-[11px] font-bold text-[#10B981]">
+                  ALL_10_NODES_VERIFIED
                 </span>
               )}
             </div>
           )}
 
           {missionOutcome === 'FAILED' && (
-            <div className="rounded-md border border-[#FF3B30]/60 bg-[#FF3B30]/10 p-3 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <AlertTriangle className="w-4 h-4 text-[#FF3B30] shrink-0" />
-                <div className="font-mono text-xs text-slate-200">
-                  {timeLeft <= 0
-                    ? 'TIMEOUT // Reset the board to try again.'
-                    : 'TRANSMISSION DROPPED // Inspect Trace Log, adjust pipes, and re-run.'}
-                </div>
-              </div>
-              {timeLeft <= 0 && (
+            <div className="rounded-[2px] border border-[#EF4444] bg-[#EF4444]/10 px-3 py-2 flex items-center justify-between gap-2 font-mono text-[11px]">
+              <span className="text-[#EF4444] font-bold">
+                {timeTenths <= 0
+                  ? 'ERR_LINK_TIMEOUT // Reset board to retry.'
+                  : 'ERR_TX_DROPPED // Inspect Kernel Console and adjust patch bay.'}
+              </span>
+              {timeTenths <= 0 && (
                 <button
                   type="button"
                   onClick={() => resetLevelState(currentLevel)}
-                  className="px-3 py-1.5 rounded-sm bg-[#FF3B30] text-white font-mono text-xs font-bold cursor-pointer"
+                  className="px-2.5 py-1 rounded-[2px] bg-[#EF4444] text-white font-bold cursor-pointer"
                 >
-                  RETRY
+                  [RESET]
                 </button>
               )}
             </div>
           )}
-        </div>
+        </section>
 
-        {/* Right Column: Packet Inspector + Terminal Log */}
-        <div className="lg:col-span-5 flex flex-col gap-3">
+        {/* Right Inspector Rail (~340-360px) */}
+        <aside className="w-full lg:w-[360px] shrink-0 flex flex-col gap-2.5 min-h-0">
           <PacketInspector
             packets={currentLevel.packets}
             results={simResult?.packetResults}
           />
           <TerminalLog logs={logs} onClear={() => setLogs([])} />
-        </div>
+        </aside>
       </main>
 
       <ManualModal isOpen={isManualOpen} onClose={() => setIsManualOpen(false)} />

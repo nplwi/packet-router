@@ -1,5 +1,4 @@
 import React from 'react';
-import { Lock, Unlock, Zap, Shield, ArrowRight } from 'lucide-react';
 import type { PacketConfig, PacketSimulationResult } from '../types/game';
 
 interface PacketInspectorProps {
@@ -7,100 +6,95 @@ interface PacketInspectorProps {
   results?: PacketSimulationResult[];
 }
 
+const COL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+function formatCoord(row: number, col: number) {
+  return `${COL_LABELS[col] ?? col}${row}`;
+}
+
 export const PacketInspector: React.FC<PacketInspectorProps> = ({
   packets,
   results,
 }) => {
   return (
-    <div className="noc-panel rounded-md p-3 flex flex-col gap-2.5">
-      <div className="flex items-center justify-between border-b border-[#263042] pb-2">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-xs bg-[#00E5FF]" />
-          <h2 className="font-mono text-xs font-semibold uppercase tracking-wider text-slate-200">
-            Packet Inspector
-          </h2>
-        </div>
+    <div className="hw-chassis rounded-[2px] flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-[#2A303C] bg-[#101318]">
+        <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-slate-300">
+          PACKET_HEADER_TABLE
+        </span>
         <span className="font-mono text-[10px] text-slate-400">
-          QUEUE: {packets.length}
+          STREAMS: {packets.length}
         </span>
       </div>
 
-      <div className="flex flex-col gap-2">
-        {packets.map((pkt) => {
-          const res = results?.find((r) => r.packetId === pkt.id);
-          const statusBadge = res
-            ? res.success
-              ? { text: '200_ACK', cls: 'text-[#00E676] border-[#00E676]/40 bg-[#00E676]/10' }
-              : { text: res.errorCode ?? 'ERR_DROP', cls: 'text-[#FF3B30] border-[#FF3B30]/40 bg-[#FF3B30]/10' }
-            : { text: 'READY', cls: 'text-slate-300 border-[#263042] bg-[#0B0E14]' };
+      {/* Wireshark-style Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse font-mono text-[10px]">
+          <thead>
+            <tr className="border-b border-[#2A303C] bg-[#0D0F12] text-slate-500">
+              <th className="py-1.5 px-2 font-semibold">PKT_ID</th>
+              <th className="py-1.5 px-2 font-semibold">PROTO</th>
+              <th className="py-1.5 px-2 font-semibold">STATE</th>
+              <th className="py-1.5 px-2 font-semibold">MAX_HOP</th>
+              <th className="py-1.5 px-2 font-semibold">TARGET</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#222833]">
+            {packets.map((pkt) => {
+              const res = results?.find((r) => r.packetId === pkt.id);
 
-          const typeColor =
-            pkt.type === 'ENCRYPTED'
-              ? 'text-[#FFB000]'
-              : pkt.type === 'PRIORITY'
-                ? 'text-[#00E676]'
-                : 'text-[#00E5FF]';
+              const stateBadge = res
+                ? res.success
+                  ? {
+                      label: '200_ACK',
+                      cls: 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]',
+                    }
+                  : {
+                      label: 'DROP',
+                      cls: 'bg-[#EF4444]/15 text-[#EF4444] border-[#EF4444]',
+                    }
+                : pkt.encrypted
+                  ? {
+                      label: 'TLS_ENC',
+                      cls: 'bg-[#F59E0B]/15 text-[#F59E0B] border-[#F59E0B]',
+                    }
+                  : {
+                      label: 'PLAIN',
+                      cls: 'bg-[#38BDF8]/15 text-[#38BDF8] border-[#38BDF8]',
+                    };
 
-          return (
-            <div
-              key={pkt.id}
-              className="bg-[#0B0E14] border border-[#263042] rounded-sm p-2.5 flex flex-col gap-1.5"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className={`font-mono text-xs font-bold ${typeColor}`}>
+              return (
+                <tr key={pkt.id} className="hover:bg-[#1B2028]/60">
+                  <td className="py-2 px-2 font-bold text-slate-200">
                     {pkt.id}
-                  </span>
-                  <span className="font-mono text-[11px] text-slate-400">
-                    {pkt.protocol}
-                  </span>
-                </div>
-                <span
-                  className={`font-mono text-[10px] px-1.5 py-0.5 border rounded-xs ${statusBadge.cls}`}
-                >
-                  {statusBadge.text}
-                </span>
-              </div>
+                  </td>
+                  <td className="py-2 px-2 text-slate-400">{pkt.protocol}</td>
+                  <td className="py-2 px-2">
+                    <span
+                      className={`inline-block px-1.5 py-0.5 border rounded-[1px] text-[9px] font-bold ${stateBadge.cls}`}
+                    >
+                      {stateBadge.label}
+                    </span>
+                  </td>
+                  <td className="py-2 px-2 text-slate-300">
+                    {pkt.maxHops !== undefined ? `${pkt.maxHops}` : 'INF'}
+                  </td>
+                  <td className="py-2 px-2 text-slate-300">
+                    {formatCoord(pkt.sourceCoord.row, pkt.sourceCoord.col)}&rarr;
+                    {formatCoord(pkt.destCoord.row, pkt.destCoord.col)}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
-              <div className="flex items-center justify-between font-mono text-[11px] text-slate-300">
-                <span className="flex items-center gap-1">
-                  ({pkt.sourceCoord.col},{pkt.sourceCoord.row})
-                  <ArrowRight className="w-3 h-3 text-slate-500" />
-                  ({pkt.destCoord.col},{pkt.destCoord.row})
-                </span>
-                <span className="text-slate-400">{pkt.label}</span>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-[#1C2433]">
-                {pkt.encrypted ? (
-                  <span className="inline-flex items-center gap-1 font-mono text-[10px] text-[#FFB000] bg-[#FFB000]/10 border border-[#FFB000]/30 px-1.5 py-0.5 rounded-xs">
-                    <Lock className="w-2.5 h-2.5" />
-                    REQ: DECRYPTOR
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 font-mono text-[10px] text-slate-400 bg-[#131822] border border-[#263042] px-1.5 py-0.5 rounded-xs">
-                    <Unlock className="w-2.5 h-2.5" />
-                    PLAINTEXT
-                  </span>
-                )}
-
-                {pkt.maxHops !== undefined && (
-                  <span className="inline-flex items-center gap-1 font-mono text-[10px] text-[#00E676] bg-[#00E676]/10 border border-[#00E676]/30 px-1.5 py-0.5 rounded-xs">
-                    <Zap className="w-2.5 h-2.5" />
-                    TTL &le; {pkt.maxHops} HOPS
-                  </span>
-                )}
-
-                {pkt.authTag && (
-                  <span className="inline-flex items-center gap-1 font-mono text-[10px] text-[#00E5FF] bg-[#00E5FF]/10 border border-[#00E5FF]/30 px-1.5 py-0.5 rounded-xs">
-                    <Shield className="w-2.5 h-2.5" />
-                    AUTH_TAG
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
+      {/* Rule Legend */}
+      <div className="px-3 py-1.5 border-t border-[#2A303C] bg-[#0D0F12] flex flex-wrap gap-x-3 gap-y-1 font-mono text-[9px] text-slate-500">
+        <span>TLS_ENC = REQ DECRYPTOR</span>
+        <span>MAX_HOP = PRIORITY TTL</span>
       </div>
     </div>
   );

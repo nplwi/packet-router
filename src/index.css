@@ -11,30 +11,49 @@
   }
 }
 
-.noc-grid-bg {
-  background-color: #0B0E14;
-  background-image:
-    linear-gradient(to right, rgba(38, 48, 66, 0.28) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(38, 48, 66, 0.28) 1px, transparent 1px);
-  background-size: 24px 24px;
+/* Matte Carbon dot-matrix PCB background */
+.hw-dot-bg {
+  background-color: #0D0F12;
+  background-image: radial-gradient(#2A303C 1px, transparent 1px);
+  background-size: 16px 16px;
 }
 
-.noc-panel {
-  background-color: #131822;
-  border: 1px solid #263042;
+/* Rackmount Chassis Panel */
+.hw-chassis {
+  background-color: #14171C;
+  border: 1px solid #2A303C;
 }
 
-@keyframes packet-pulse {
+/* Tactile Patch Bay Tile */
+.hw-tile {
+  background-color: #1B2028;
+  border-top: 1px solid #2F3746;
+  border-left: 1px solid #262D39;
+  border-right: 1px solid #0D1015;
+  border-bottom: 1px solid #090B0E;
+}
+
+.hw-tile-locked {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #171B22,
+    #171B22 4px,
+    #1B2028 4px,
+    #1B2028 8px
+  );
+}
+
+@keyframes hw-pulse-block {
   0%, 100% {
-    transform: scale(1);
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    transform: scale(1.22);
-    opacity: 0.85;
+    opacity: 0.78;
+    transform: scale(0.92);
   }
 }
 
-.animate-packet {
-  animation: packet-pulse 0.7s ease-in-out infinite;
+.animate-hw-packet {
+  animation: hw-pulse-block 0.55s steps(2, end) infinite;
 }
